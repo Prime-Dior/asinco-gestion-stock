@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"from docx import Document; d=Document\\('Cahier_des_charges_ASINCO_Groupe1.docx'\\); [print\\(p.text\\) for p in d.paragraphs]\")",
+      "Bash(findstr /i \"spotify font\")",
+      "Bash(dir /s /b \"C:\\\\asinco-gestion-stock\")",
+      "Bash(findstr /i \"spotify\")",
+      "Bash(winget install *)",
+      "Bash(xcopy C:\\\\asinco-gestion-stock\\\\php *)",
+      "PowerShell(Get-NetTCPConnection *)"
+    ]
+  }
+}

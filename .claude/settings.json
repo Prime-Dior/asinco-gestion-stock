@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/inetpub/wwwroot/**)",
+      "Read(//c/xampp/apache/conf/extra/**)",
+      "Read(//c/xampp/apache/conf/**)",
+      "Read(//c/xampp/htdocs/asinco/**)",
+      "Read(//c/xampp/htdocs/**)",
+      "Bash(cp \"c:/asinco-gestion-stock/php/data/mock.php\" \"C:/xampp/htdocs/asinco/data/mock.php\")",
+      "Bash(cp \"c:/asinco-gestion-stock/php/dashboard.php\" \"C:/xampp/htdocs/asinco/dashboard.php\")",
+      "Bash(cp \"c:/asinco-gestion-stock/php/assets/css/custom.css\" \"C:/xampp/htdocs/asinco/assets/css/custom.css\")"
+    ],
+    "additionalDirectories": [
+      "C:\\xampp\\apache\\conf",
+      "C:\\xampp\\htdocs\\asinco"
+    ]
+  }
+}
