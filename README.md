@@ -105,6 +105,6 @@ http://localhost/asinco-gestion-stock-main/php/
 | Membre 3 | Frontend Parc Matériel |
 | Membre 4 | Frontend Maintenance |
 | Membre 5 | Intégration PHP ↔ Oracle |
-| Membre 6 | Rapport & Soutenance |
+| Membre 6 | Rapport & Livrables |
 ```
 
