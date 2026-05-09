@@ -1,19 +1,16 @@
-
-
-```
+```markdown
 # 🖥️ ASINCO — Système de Gestion de Stock et de Maintenance
-
 > Projet universitaire — Groupe 1  
 > Application web de gestion du parc matériel et suivi des maintenances
 
 ---
 
 ## 📌 Description
-
 ASINCO est une application web permettant à la société **ASINCO** de centraliser :
 - La gestion de son **parc matériel** (serveurs, switchs, équipements réseau...)
 - Le suivi des **interventions de maintenance**
-- L'état en temps réel de chaque équipement
+- L'état en temps réel de chaque équipement (En service / En réparation / Déclassé)
+- La gestion des **techniciens** et de leurs spécialités
 
 ---
 
@@ -21,9 +18,9 @@ ASINCO est une application web permettant à la société **ASINCO** de centrali
 
 | Couche | Technologie |
 |--------|-------------|
-| Base de données | Oracle SQL + PL/SQL |
-| Connexion BD | PHP 8.x + OCI8 |
-| Frontend | HTML5 + CSS3 + Bootstrap 5 |
+| Base de données | Oracle SQL + PL/SQL (XE 11g) |
+| Connexion BD | PHP 8.1 + OCI8 |
+| Frontend | HTML5 + CSS3 + JS (design custom, thème sombre/clair) |
 | Versioning | Git + GitHub |
 
 ---
@@ -32,31 +29,22 @@ ASINCO est une application web permettant à la société **ASINCO** de centrali
 
 ```
 asinco-gestion-stock/
-│
-├── analyse/
-│   ├── MCD.png                  # Modèle Conceptuel de Données
-│   └── MLD.md                   # Modèle Logique de Données
-│
 ├── database/
-│   ├── 01_create_tables.sql     # Création des tables + contraintes
-│   ├── 02_plsql.sql             # Procédures et fonctions PL/SQL
-│   └── 03_insert_data.sql       # Données de test
-│
+│   ├── 01_create_tables.sql   # DDL : tables, séquences, contraintes
+│   ├── 02_plsql.sql           # Procédure PRC_AJOUT_INTERVENTION + Fonction FNC_NB_INTERVENTIONS
+│   └── 03_insert_data.sql     # Données de test
 ├── php/
 │   ├── config/
-│   │   └── connexion.php        # ⚠️ À créer manuellement (non versionné)
-│   ├── materiel/
-│   │   ├── liste.php            # Liste des matériels
-│   │   ├── ajout.php            # Formulaire d'ajout
-│   │   └── modification.php     # Formulaire de modification
-│   └── maintenance/
-│       ├── formulaire.php       # Nouvelle intervention
-│       └── fiche.php            # Fiche matériel + nb interventions
-│
-├── rapport/
-│   └── Rapport_final.pdf        # Rapport de projet
-│
-├── .gitignore
+│   │   └── connexion.php      # Connexion Oracle OCI8 + helpers
+│   ├── data/
+│   │   └── db.php             # Requêtes SQL centralisées
+│   ├── materiel/              # CRUD matériels
+│   ├── maintenance/           # Formulaire et liste des interventions
+│   ├── technicien/            # CRUD techniciens
+│   ├── categorie/             # Liste des catégories
+│   ├── partials/              # Composants réutilisables (sidebar, topbar...)
+│   ├── dashboard.php          # Tableau de bord
+│   └── login.php              # Page de connexion
 └── README.md
 ```
 
@@ -64,81 +52,59 @@ asinco-gestion-stock/
 
 ## ⚙️ Installation
 
-### 1. Prérequis
-- Oracle Database (XE ou autre) installé et configuré
-- PHP 8.x avec l'extension **OCI8** activée
-- Serveur local : XAMPP ou WAMP
+### Prérequis
+- WAMP / XAMPP avec **PHP 8.1**
+- **Oracle XE** installé localement
+- Extension **OCI8** activée (php_oci8_19.dll)
+- **Instant Client Oracle 19.x** dans le PATH système
 
-### 2. Base de données
-Exécuter les scripts SQL dans Oracle SQL Developer **dans cet ordre** :
-
+### Configuration
+1. Importer les scripts SQL dans Oracle :
 ```sql
--- Étape 1 : Création des tables
 @database/01_create_tables.sql
-
--- Étape 2 : Procédures et fonctions
 @database/02_plsql.sql
-
--- Étape 3 : Données de test
 @database/03_insert_data.sql
 ```
 
-### 3. Configuration PHP
-Créer le fichier `php/config/connexion.php` (non versionné pour des raisons de sécurité) :
-
+2. Configurer la connexion dans `php/config/connexion.php` :
 ```php
-<?php
-$host     = 'localhost';
-$port     = '1521';
-$sid      = 'XE'; // Remplacer par votre SID Oracle
-$user     = 'votre_user';
-$password = 'votre_password';
-
-$conn = oci_connect($user, $password, "$host:$port/$sid");
-
-if (!$conn) {
-    $e = oci_error();
-    die("Erreur de connexion Oracle : " . $e['message']);
-}
-?>
+define('ORA_USER',     'ASINCO');
+define('ORA_PASSWORD', 'asinco123');
+define('ORA_DSN',      'localhost/XE');
 ```
 
-### 4. Lancer l'application
-Placer le dossier `php/` dans le répertoire `htdocs/` de XAMPP puis accéder à :
+3. Placer le projet dans `C:\wamp64\www\` et accéder via :
 ```
-http://localhost/php/materiel/liste.php
+http://localhost/asinco-gestion-stock-main/php/
 ```
 
 ---
 
-## 🗄️ Objets PL/SQL
+## 🗄️ Modèle de données
 
-### Procédure — `PRC_AJOUT_INTERVENTION`
-Insère une nouvelle intervention et met automatiquement à jour l'état du matériel à `En réparation`.
-
-### Fonction — `FNC_NB_INTERVENTIONS`
-Retourne le nombre total d'interventions effectuées pour un matériel donné.
-
----
+- **CATEGORIE** (ID_CATEGORIE, LIBELLE, DESCRIPTION)
+- **MATERIEL** (ID_MATERIEL, REFERENCE, DESIGNATION, DATE_ACHAT, ETAT, ID_CATEGORIE)
+- **TECHNICIEN** (ID_TECHNICIEN, NOM, PRENOM, SPECIALITE)
+- **INTERVENTION** (ID_INTERVENTION, DATE_INTERVENTION, DESCRIPTION, ID_MATERIEL, ID_TECHNICIEN)
 
 ---
 
-## 📋 Livrables
+## 🔧 Objets PL/SQL
 
-- [x] Cahier des charges
-- [ ] Dossier d'analyse (MCD + MLD)
-- [ ] Scripts SQL complets
-- [ ] Code source PHP
-- [ ] Rapport final
-- [ ] Démonstration / Captures d'écran
+- `PRC_AJOUT_INTERVENTION` : insère une intervention et met l'équipement à *En réparation*
+- `FNC_NB_INTERVENTIONS` : retourne le nombre d'interventions pour un matériel donné
 
 ---
 
-## ⚠️ Sécurité
+## 👥 Équipe — Groupe 1
 
-Le fichier `php/config/connexion.php` est dans le `.gitignore` et ne doit **jamais** être pushé sur GitHub car il contient les identifiants Oracle.
+| Membre | Rôle |
+|--------|------|
+| Membre 1 | Base de données + Backend OCI8 |
+| Membre 2 | Analyse & Modélisation (MCD/MLD) |
+| Membre 3 | Frontend Parc Matériel |
+| Membre 4 | Frontend Maintenance |
+| Membre 5 | Intégration PHP ↔ Oracle |
+| Membre 6 | Rapport & Soutenance |
 ```
 
----
-
-Tu peux remplacer les **"Membre 1, Membre 2..."** par les vrais prénoms de ton groupe. Tu veux qu'on attaque les scripts SQL maintenant ?
